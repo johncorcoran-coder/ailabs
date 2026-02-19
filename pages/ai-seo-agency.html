@@ -401,6 +401,83 @@
             margin-bottom: 1.5rem;
         }
         
+        /* Problem Grid */
+        .problem-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin: 3rem 0;
+        }
+        
+        .problem-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+        
+        .problem-icon {
+            flex-shrink: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: #DC143C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+        
+        .problem-text {
+            flex: 1;
+        }
+        
+        .problem-text h4 {
+            font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333333;
+            font-weight: 700;
+        }
+        
+        .problem-intro {
+            font-size: 1rem;
+            color: #444444;
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        
+        .we-help {
+            text-align: center;
+            background: #FFFFFF;
+            padding: 2.5rem;
+            border-radius: 6px;
+            margin: 2.5rem 0;
+            font-size: 1rem;
+            color: #333333;
+            line-height: 1.8;
+        }
+        
+        .we-help strong {
+            color: #003C73;
+            font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .problem-cta-center {
+            text-align: center;
+            margin-top: 2.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .problem-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+        
         /* Footer CTA */
         .footer-cta {
             background: #003C73;
@@ -496,19 +573,49 @@
     <!-- Problem Section -->
     <section class="section problem">
         <div class="container">
-            <h2 class="section-title">The AI Search <span class="gold">Revolution</span> Is Happening Now</h2>
-            <p class="section-subtitle">And Most B2B Companies Are Falling Behind</p>
+            <h2 class="section-title">Is Your B2B Company <span class="gold">Invisible In AI Search Results?</span></h2>
             
-            <div class="problem-content">
-                <h3>Your Customers Are Searching in New Ways</h3>
-                <p>
-                    While you've optimized for Google's traditional algorithm, AI-powered search engines like ChatGPT, Perplexity, Claude, 
-                    and Google's SGE are reshaping how buyers find solutions. These answer engines cite sources, recommend solutions, 
-                    and influence purchasing decisions—but most companies don't appear in these AI-generated results.
-                </p>
-                <p>
-                    <strong>Without an AI SEO strategy, you're invisible to an entire generation of AI-first buyers.</strong>
-                </p>
+            <p class="problem-intro">
+                Your ideal customers—engineers, procurement managers, and enterprise buyers—are asking AI systems for solutions every day. 
+                Without a strong AI search presence, you're losing deals to competitors who show up first…
+            </p>
+            
+            <div class="problem-grid">
+                <div class="problem-item">
+                    <div class="problem-icon">✕</div>
+                    <div class="problem-text">
+                        <h4>Your website isn't appearing in ChatGPT, Perplexity, or Claude recommendations</h4>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon">✕</div>
+                    <div class="problem-text">
+                        <h4>You're not positioned as a trusted solution in AI-powered search results</h4>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon">✕</div>
+                    <div class="problem-text">
+                        <h4>Your competitors are capturing leads through answer engines while you rely on outdated SEO</h4>
+                    </div>
+                </div>
+                
+                <div class="problem-item">
+                    <div class="problem-icon">✕</div>
+                    <div class="problem-text">
+                        <h4>Your content isn't optimized for how AI systems evaluate and cite sources</h4>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="we-help">
+                <p>We help B2B companies <strong>dominate AI-powered search results, get cited by answer engines, and capture qualified leads</strong> before your competitors do.</p>
+            </div>
+            
+            <div class="problem-cta-center">
+                <a href="#" class="cta-button">Schedule Your Free AI Search Audit</a>
             </div>
         </div>
     </section>
