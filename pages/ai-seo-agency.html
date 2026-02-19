@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered SEO agency delivering Answer Engine Optimization and Generative Engine Optimization for B2B companies.">
+    <title>AI SEO Agency | Answer Engine & Generative Engine Optimization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .hero .tagline {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: #cbd5e0;
+        }
+        
+        .hero .subtitle {
+            font-size: 1rem;
+            color: #a0aec0;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .cta-button:hover {
+            background: #5568d3;
+        }
+        
+        .cta-button.secondary {
+            background: transparent;
+            border: 2px solid white;
+            margin-left: 1rem;
+        }
+        
+        .cta-button.secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .stat {
+            padding: 2rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+        
+        /* Section */
+        .section {
+            padding: 4rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Problem Section */
+        .problem {
+            background: #f7fafc;
+        }
+        
+        .problem-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            border-left: 6px solid #e53e3e;
+        }
+        
+        .problem-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e53e3e;
+        }
+        
+        /* Why Choose Us */
+        .why-us {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .why-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .why-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        
+        .why-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+        
+        .why-card p {
+            color: #718096;
+            line-height: 1.8;
+        }
+        
+        /* Capabilities */
+        .capabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+        
+        .capability {
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .capability h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+        
+        .capability p {
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+        
+        .capability a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .capability a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Case Studies */
+        .case-studies {
+            background: #f7fafc;
+        }
+        
+        .case-study {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 2rem;
+        }
+        
+        .case-study h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .case-study-category {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .case-study-result {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 1rem;
+        }
+        
+        /* Process */
+        .process {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .process-step {
+            counter-increment: step-counter;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+        }
+        
+        .process-step::before {
+            content: counter(step-counter);
+            position: absolute;
+            top: -1rem;
+            left: 2rem;
+            background: #667eea;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .process-step h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .process-step p {
+            color: #718096;
+            line-height: 1.8;
+        }
+        
+        /* Services */
+        .services {
+            background: #f7fafc;
+        }
+        
+        .service-item {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .service-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .service-item p {
+            color: #718096;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Footer CTA */
+        .footer-cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-cta p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Counter for process steps */
+        .process {
+            counter-reset: step-counter;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .cta-button.secondary {
+                display: block;
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>AI-Powered SEO for Modern B2B Companies</h1>
+            <p class="tagline">Answer Engine Optimization + Generative Engine Optimization</p>
+            <p class="subtitle">
+                The search landscape is evolving. Answer engines and AI-powered search are reshaping how customers discover solutions. 
+                We help B2B companies dominate AI-powered search results and capture qualified leads before your competitors do.
+            </p>
+            <a href="#" class="cta-button">Book a Free Audit</a>
+            <a href="#" class="cta-button secondary">Schedule a Call</a>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="container">
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">250%+</div>
+                <div class="stat-label">Average Organic Traffic Growth</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">$50M+</div>
+                <div class="stat-label">Revenue Influenced for Clients</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">45+</div>
+                <div class="stat-label">B2B Companies Transformed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">6 years</div>
+                <div class="stat-label">AI & SEO Expertise Combined</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="section problem">
+        <div class="container">
+            <h2 class="section-title">The AI Search Revolution Is Happening Now</h2>
+            <p class="section-subtitle">And Most B2B Companies Are Falling Behind</p>
+            
+            <div class="problem-content">
+                <h3>Your Customers Are Searching in New Ways</h3>
+                <p>
+                    While you've optimized for Google's traditional algorithm, AI-powered search engines like ChatGPT, Perplexity, Claude, 
+                    and Google's SGE are reshaping how buyers find solutions. These answer engines cite sources, recommend solutions, 
+                    and influence purchasing decisions—but most companies don't appear in these AI-generated results.
+                </p>
+                <p style="margin-top: 1rem;">
+                    <strong>Without an AI SEO strategy, you're invisible to an entire generation of AI-first buyers.</strong>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Why Smart Business Revolution</h2>
+            <p class="section-subtitle">The Only AI SEO Agency Combining AEO + GEO + Traditional SEO</p>
+            
+            <div class="why-us">
+                <div class="why-card">
+                    <h4>Answer Engine Optimization (AEO)</h4>
+                    <p>We optimize your content to be cited by AI-powered search engines, ensuring your company appears in ChatGPT, Perplexity, Claude, and Google SGE responses.</p>
+                </div>
+                
+                <div class="why-card">
+                    <h4>Generative Engine Optimization (GEO)</h4>
+                    <p>We create content that AI systems recognize as authoritative, trustworthy, and valuable—positioning your brand as the solution AI recommends.</p>
+                </div>
+                
+                <div class="why-card">
+                    <h4>Traditional SEO Mastery</h4>
+                    <p>We don't abandon Google. Our strategies capture traffic across Google Search, AI answer engines, and emerging search platforms simultaneously.</p>
+                </div>
+                
+                <div class="why-card">
+                    <h4>B2B-First Approach</h4>
+                    <p>We specialize in complex B2B sales cycles, high-value keywords, and long-term customer relationships—not generic marketing tactics.</p>
+                </div>
+                
+                <div class="why-card">
+                    <h4>ROI-Driven Strategy</h4>
+                    <p>Every tactic is measured against revenue impact. We don't optimize for vanity metrics—we optimize for qualified leads and closed deals.</p>
+                </div>
+                
+                <div class="why-card">
+                    <h4>Proven Track Record</h4>
+                    <p>45+ B2B companies have grown with us. We've influenced $50M+ in client revenue through strategic AI and SEO positioning.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Capabilities -->
+    <section class="section" style="background: #f7fafc;">
+        <div class="container">
+            <h2 class="section-title">Our Core Capabilities</h2>
+            <p class="section-subtitle">Complete AI SEO Services to Capture Traffic Across All Search Channels</p>
+            
+            <div class="capabilities">
+                <div class="capability">
+                    <h3>AEO Content Strategy</h3>
+                    <p>We research and create content optimized specifically for AI answer engines—structured, authoritative, and citation-worthy.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+                
+                <div class="capability">
+                    <h3>Technical AI Optimization</h3>
+                    <p>We implement structured data, schema markup, and site architecture that helps AI systems understand, trust, and cite your content.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+                
+                <div class="capability">
+                    <h3>Authority Building</h3>
+                    <p>Through strategic content placement, industry partnerships, and thought leadership positioning, we establish your brand as an AI-trusted authority.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+                
+                <div class="capability">
+                    <h3>Keyword Research & Mapping</h3>
+                    <p>We identify the keywords AI systems cite most, the questions your buyers are asking, and the positions you need to dominate.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+                
+                <div class="capability">
+                    <h3>Content Optimization</h3>
+                    <p>We audit and optimize existing content for AI discoverability while maintaining Google's traditional SEO requirements.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+                
+                <div class="capability">
+                    <h3>Competitive Analysis</h3>
+                    <p>We analyze how competitors are appearing in AI search results and position you ahead of them across all search channels.</p>
+                    <a href="#">Learn more →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Studies -->
+    <section class="section case-studies">
+        <div class="container">
+            <h2 class="section-title">Results We've Delivered</h2>
+            <p class="section-subtitle">Real Companies. Real Growth. Real Revenue Impact.</p>
+            
+            <div class="case-study">
+                <h4>SaaS Platform</h4>
+                <p class="case-study-category">AI Chatbot Solution</p>
+                <p>Implemented comprehensive AEO strategy, achieving citations in ChatGPT and Perplexity recommendations while ranking for 40+ high-value keywords.</p>
+                <div class="case-study-result">180% increase in qualified leads within 6 months</div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Enterprise Software Company</h4>
+                <p class="case-study-category">B2B Enterprise Solutions</p>
+                <p>Redesigned content strategy for AI discoverability, establishing brand as the go-to solution recommended by AI agents.</p>
+                <div class="case-study-result">$2.3M in new ARR attributed to AI SEO</div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Professional Services Firm</h4>
+                <p class="case-study-category">Consulting</p>
+                <p>Built thought leadership positioning across AI engines while maintaining Google Search dominance for competitive keywords.</p>
+                <div class="case-study-result">350% increase in inbound leads</div>
+            </div>
+            
+            <div class="case-study">
+                <h4>Industrial B2B Manufacturer</h4>
+                <p class="case-study-category">Manufacturing Equipment</p>
+                <p>Optimized technical content for AI search, resulting in consistent citations and new customer discovery through AI-powered research tools.</p>
+                <div class="case-study-result">$1.8M in new revenue</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Our Proven Process</h2>
+            <p class="section-subtitle">Four Phases to AI Search Dominance</p>
+            
+            <div class="process">
+                <div class="process-step">
+                    <h4>AI Search Audit</h4>
+                    <p>We analyze how AI systems currently perceive your brand, where you appear in answer engines, competitive positioning, and opportunities to capitalize on emerging AI search trends.</p>
+                </div>
+                
+                <div class="process-step">
+                    <h4>AEO & GEO Strategy</h4>
+                    <p>We develop a comprehensive strategy for optimizing across answer engines and generative search, including content roadmap, keyword targeting, and technical requirements.</p>
+                </div>
+                
+                <div class="process-step">
+                    <h4>Implementation & Optimization</h4>
+                    <p>We restructure your content, implement technical optimizations, build authority signals, and ensure your website is optimized for both traditional and AI-powered search.</p>
+                </div>
+                
+                <div class="process-step">
+                    <h4>Measurement & Growth</h4>
+                    <p>We track citations in AI engines, monitor rankings, measure revenue impact, and continuously refine strategy based on real performance data.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="section services">
+        <div class="container">
+            <h2 class="section-title">Our AI SEO Services</h2>
+            <p class="section-subtitle">Comprehensive Solutions for the AI-Powered Search Era</p>
+            
+            <div class="service-item">
+                <h3>Answer Engine Optimization (AEO)</h3>
+                <p>
+                    Complete optimization strategy for ChatGPT, Perplexity, Claude, and Google SGE. We ensure your content is discoverable, 
+                    citable, and recommended by AI systems to your ideal customers.
+                </p>
+                <a href="#" class="cta-button">Explore AEO Services</a>
+            </div>
+            
+            <div class="service-item">
+                <h3>Generative Engine Optimization (GEO)</h3>
+                <p>
+                    Strategy and implementation to position your brand as the authoritative solution AI systems recommend. 
+                    We build trust signals, create citation-worthy content, and establish market leadership.
+                </p>
+                <a href="#" class="cta-button">Explore GEO Services</a>
+            </div>
+            
+            <div class="service-item">
+                <h3>Traditional SEO + AI Integration</h3>
+                <p>
+                    We don't abandon Google. Our integrated approach captures traffic from traditional Google Search while dominating AI answer engines, 
+                    ensuring you win across all search channels.
+                </p>
+                <a href="#" class="cta-button">Explore Integrated SEO</a>
+            </div>
+            
+            <div class="service-item">
+                <h3>Content Audit & Optimization</h3>
+                <p>
+                    We audit your existing content for AI discoverability, implement structured data, optimize for citation-worthiness, 
+                    and position your content to be recommended by answer engines.
+                </p>
+                <a href="#" class="cta-button">Get Your Content Audit</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <div class="container">
+            <h2>Ready to Dominate AI-Powered Search?</h2>
+            <p>Get a free AI Search Audit and find out how to capture leads through answer engines and AI systems.</p>
+            <a href="#" class="cta-button">Book Your Free Audit</a>
+        </div>
+    </section>
+
+</body>
+</html>
