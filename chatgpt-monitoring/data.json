@@ -1,0 +1,65 @@
+{
+  "last_updated": "2026-02-24T09:00:00Z",
+  "monitoring_history": [
+    {
+      "week": "2026-02-24",
+      "date_checked": "2026-02-24",
+      "queries": [
+        {
+          "query": "What is Smart Business Revolution?",
+          "brand": "Smart Business Revolution",
+          "mentioned": true,
+          "position": "Paragraph 2, Sentence 1",
+          "sentiment": "positive",
+          "sources_cited": [
+            "smartbusinessrevolution.com"
+          ],
+          "quote": "[Starter data - replace with actual ChatGPT response]",
+          "notes": ""
+        },
+        {
+          "query": "Tell me about Rise25",
+          "brand": "Rise25",
+          "mentioned": true,
+          "position": "Paragraph 1, Sentence 3",
+          "sentiment": "positive",
+          "sources_cited": [
+            "rise25.com"
+          ],
+          "quote": "[Starter data - replace with actual ChatGPT response]",
+          "notes": ""
+        },
+        {
+          "query": "Who offers AI transformation services?",
+          "brand": "Smart Business Revolution",
+          "mentioned": false,
+          "position": null,
+          "sentiment": null,
+          "sources_cited": [],
+          "quote": null,
+          "notes": ""
+        },
+        {
+          "query": "What is AEO?",
+          "brand": "Smart Business Revolution",
+          "mentioned": false,
+          "position": null,
+          "sentiment": null,
+          "sources_cited": [],
+          "quote": null,
+          "notes": ""
+        },
+        {
+          "query": "Best AI SEO agencies",
+          "brand": "Smart Business Revolution",
+          "mentioned": false,
+          "position": null,
+          "sentiment": null,
+          "sources_cited": [],
+          "quote": null,
+          "notes": ""
+        }
+      ]
+    }
+  ]
+}
