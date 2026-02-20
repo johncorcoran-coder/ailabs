@@ -1,0 +1,159 @@
+{
+  "last_updated": "2026-02-20T22:51:00Z",
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "Create About Page HTML",
+      "description": "Build About page with AI transformation positioning. Text finalized, awaiting design specs.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-02-25",
+      "assigned_to": "mandy",
+      "status": "in_progress",
+      "created_at": "2026-02-19T14:30:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Text done, design blocking completion. Will rebuild once John provides brand specs.",
+      "subtasks": [
+        {
+          "id": "sub-001",
+          "title": "Wait for design specs",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-002",
+      "title": "Build ChatGPT Monitoring Dashboard (Lovable.dev)",
+      "description": "Create Lovable.dev project with specs provided. Dashboard displays brand monitoring data with sidebar nav, metric cards, action items.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-03-01",
+      "assigned_to": "john",
+      "status": "pending",
+      "created_at": "2026-02-20T06:00:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Specs complete. Waiting for John to create Lovable.dev project and paste specs.",
+      "subtasks": [
+        {
+          "id": "sub-002",
+          "title": "Create Lovable.dev project",
+          "completed": false
+        },
+        {
+          "id": "sub-003",
+          "title": "Paste specs into project brief",
+          "completed": false
+        },
+        {
+          "id": "sub-004",
+          "title": "Wait for Lovable build",
+          "completed": false
+        },
+        {
+          "id": "sub-005",
+          "title": "Test GitHub data fetch",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-003",
+      "title": "Redesign AI SEO Agency page (WordPress/Divi)",
+      "description": "Paste HTML into WordPress Divi builder once design specs received. Page already fully optimized with SEO.",
+      "section": "work",
+      "priority": "medium",
+      "deadline": "2026-03-10",
+      "assigned_to": "john",
+      "status": "on_hold",
+      "created_at": "2026-02-20T08:30:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "HTML ready. BLOCKING: John needs to provide design specifications (colors, fonts, styling) first.",
+      "subtasks": []
+    },
+    {
+      "id": "task-004",
+      "title": "Build Mission Control Dashboard (Lovable.dev)",
+      "description": "Create real-time Kanban board task management dashboard. Data in GitHub JSON, UI in Lovable.dev.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-03-05",
+      "assigned_to": "both",
+      "status": "to_do",
+      "created_at": "2026-02-20T22:51:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Specs just created. Ready for Lovable.dev build.",
+      "subtasks": [
+        {
+          "id": "sub-006",
+          "title": "Create Lovable.dev project",
+          "completed": false
+        },
+        {
+          "id": "sub-007",
+          "title": "Set up GitHub data file",
+          "completed": false
+        },
+        {
+          "id": "sub-008",
+          "title": "Build Kanban UI",
+          "completed": false
+        },
+        {
+          "id": "sub-009",
+          "title": "Test drag-and-drop + GitHub sync",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-005",
+      "title": "Install OpenClaw Chrome Extension",
+      "description": "Install extension on laptop for browser automation (job applications, email monitoring, ClickUp management).",
+      "section": "work",
+      "priority": "medium",
+      "deadline": "2026-02-22",
+      "assigned_to": "john",
+      "status": "pending",
+      "created_at": "2026-02-20T22:17:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Reminder set for tomorrow 2 PM PST. Once installed, can automate job applications, email triage, etc.",
+      "subtasks": [
+        {
+          "id": "sub-010",
+          "title": "Go to GitHub/OpenClaw docs",
+          "completed": false
+        },
+        {
+          "id": "sub-011",
+          "title": "Install extension",
+          "completed": false
+        },
+        {
+          "id": "sub-012",
+          "title": "Connect first tab",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-006",
+      "title": "Brendan - 6:30 PM Daily Medication Reminder",
+      "description": "Set up cron job for daily 6:30 PM PST Telegram reminder.",
+      "section": "personal",
+      "priority": "high",
+      "deadline": "2026-02-22",
+      "assigned_to": "mandy",
+      "status": "to_do",
+      "created_at": "2026-02-16T12:00:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Pending confirmation from John. Reminder implementation ready, just need approval.",
+      "subtasks": [
+        {
+          "id": "sub-013",
+          "title": "Confirm reminder time + message",
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
