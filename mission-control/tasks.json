@@ -154,6 +154,121 @@
           "completed": false
         }
       ]
+    },
+    {
+      "id": "task-007",
+      "title": "Provide SBR Website Design Specifications",
+      "description": "Provide brand design specs needed to build remaining website pages. Must include: primary/secondary colors, header font, body font, button styling, hero background.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-02-28",
+      "assigned_to": "john",
+      "status": "to_do",
+      "created_at": "2026-02-20T22:51:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "BLOCKING: About page HTML, AI SEO Agency page redesign, and all remaining pages (Homepage, How It Works, Case Studies, Pricing, Contact) cannot be completed without these specs.",
+      "subtasks": [
+        {
+          "id": "sub-014",
+          "title": "Pick primary brand color",
+          "completed": false
+        },
+        {
+          "id": "sub-015",
+          "title": "Pick secondary colors",
+          "completed": false
+        },
+        {
+          "id": "sub-016",
+          "title": "Choose header font",
+          "completed": false
+        },
+        {
+          "id": "sub-017",
+          "title": "Choose body font",
+          "completed": false
+        },
+        {
+          "id": "sub-018",
+          "title": "Define button styling",
+          "completed": false
+        },
+        {
+          "id": "sub-019",
+          "title": "Provide hero section background (image/color/pattern)",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-008",
+      "title": "Create ChatGPT Monitoring Lovable.dev Project",
+      "description": "Create Lovable.dev project and paste ChatGPT monitoring dashboard specs.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-02-25",
+      "assigned_to": "john",
+      "status": "to_do",
+      "created_at": "2026-02-20T22:51:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Specs ready. GitHub URL: https://raw.githubusercontent.com/johncorcoran-coder/ailabs/main/chatgpt-monitoring/data.json",
+      "subtasks": [
+        {
+          "id": "sub-020",
+          "title": "Go to Lovable.dev and create new project",
+          "completed": false
+        },
+        {
+          "id": "sub-021",
+          "title": "Copy ChatGPT monitoring specs and paste in project brief",
+          "completed": false
+        },
+        {
+          "id": "sub-022",
+          "title": "Add GitHub URL to specs",
+          "completed": false
+        },
+        {
+          "id": "sub-023",
+          "title": "Click Create and let Lovable build",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "task-009",
+      "title": "Create Mission Control Lovable.dev Project",
+      "description": "Create Lovable.dev project and paste Mission Control dashboard specs.",
+      "section": "work",
+      "priority": "high",
+      "deadline": "2026-02-28",
+      "assigned_to": "john",
+      "status": "to_do",
+      "created_at": "2026-02-20T22:51:00Z",
+      "updated_at": "2026-02-20T22:51:00Z",
+      "notes": "Specs ready. GitHub URL: https://raw.githubusercontent.com/johncorcoran-coder/ailabs/main/mission-control/tasks.json",
+      "subtasks": [
+        {
+          "id": "sub-024",
+          "title": "Go to Lovable.dev and create new project",
+          "completed": false
+        },
+        {
+          "id": "sub-025",
+          "title": "Copy Mission Control specs and paste in project brief",
+          "completed": false
+        },
+        {
+          "id": "sub-026",
+          "title": "Add GitHub URL to specs",
+          "completed": false
+        },
+        {
+          "id": "sub-027",
+          "title": "Click Create and let Lovable build",
+          "completed": false
+        }
+      ]
     }
   ]
 }
