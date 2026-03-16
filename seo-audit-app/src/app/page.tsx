@@ -71,6 +71,31 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* What we check */}
+        <section className="pb-20">
+          <h2 className="mb-10 text-center text-3xl font-bold">
+            What We Analyze
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { title: "Page Titles", desc: "Length, uniqueness, keyword usage, and duplicate detection across your entire site." },
+              { title: "Meta Descriptions", desc: "Missing, too short, too long, or duplicate descriptions that hurt click-through rates." },
+              { title: "Heading Structure", desc: "H1 presence, heading hierarchy (H1 > H2 > H3), and proper semantic structure." },
+              { title: "Image Alt Text", desc: "Missing alt attributes that hurt accessibility and image search rankings." },
+              { title: "Internal Linking", desc: "Orphan pages, broken links, and missed cross-linking opportunities." },
+              { title: "Content Quality", desc: "Thin content, keyword stuffing, and readability issues flagged by AI analysis." },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-lg border border-gray-200 bg-white p-5"
+              >
+                <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                <p className="mt-1 text-sm text-gray-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Pricing comparison teaser */}
         <section className="mb-20 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 p-10 text-center text-white">
           <h2 className="text-3xl font-bold">
@@ -92,6 +117,14 @@ export default function HomePage() {
               <p className="text-3xl font-bold">~$50</p>
             </div>
           </div>
+          <button
+            onClick={() =>
+              router.push(session ? "/connect" : "/auth/signup")
+            }
+            className="mt-8 rounded-lg bg-white px-8 py-3 text-lg font-semibold text-indigo-600 shadow-md hover:bg-indigo-50"
+          >
+            Get Started Free
+          </button>
         </section>
       </main>
     </>

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getRequiredSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
-import { findWPContentByUrl, updateContent } from "@/lib/wordpress";
+import { findWPContentByUrl, updateContent, fetchContentById } from "@/lib/wordpress";
+import { applyHtmlFix } from "@/lib/html-fixer";
 
 export async function POST(req: Request) {
   const session = await getRequiredSession();
@@ -96,35 +97,49 @@ export async function POST(req: Request) {
   const valueToApply = modifiedValue || issue.suggestedValue;
   const updates: { title?: string; content?: string } = {};
 
-  if (
-    issue.issueType.includes("title") ||
-    issue.issueType.includes("h1")
-  ) {
+  if (issue.issueType.includes("title")) {
     updates.title = valueToApply;
   } else {
-    // For content-level changes (meta descriptions, heading fixes, alt text, etc.),
-    // we'd need to parse and modify the HTML content.
-    // For now, store the approved value — full HTML manipulation comes in Phase 3.
-    await prisma.auditIssue.update({
-      where: { id: issueId },
-      data: {
+    // Content-level HTML changes: H1, heading hierarchy, alt text, etc.
+    // Fetch current content from WordPress, apply the fix, push back
+    const currentContent = await fetchContentById(conn, wpContent.type, wpContent.id);
+    if (!currentContent) {
+      await prisma.auditIssue.update({
+        where: { id: issueId },
+        data: { status: "approved", userModifiedValue: modifiedValue || null },
+      });
+      return NextResponse.json({
+        status: "approved",
+        applied: false,
+        warning: "Could not fetch current content from WordPress.",
+      });
+    }
+
+    const { html: fixedHtml, modified } = applyHtmlFix(
+      currentContent,
+      issue.issueType,
+      issue.currentValue,
+      valueToApply
+    );
+
+    if (modified) {
+      updates.content = fixedHtml;
+    } else {
+      // Couldn't match the pattern in the HTML — record but don't push
+      await prisma.auditIssue.update({
+        where: { id: issueId },
+        data: { status: "applied", userModifiedValue: modifiedValue || null, appliedAt: new Date() },
+      });
+      await prisma.tokenBalance.update({
+        where: { userId: session.userId },
+        data: { balanceTokens: { decrement: estimatedTokens } },
+      });
+      return NextResponse.json({
         status: "applied",
-        userModifiedValue: modifiedValue || null,
-        appliedAt: new Date(),
-      },
-    });
-
-    // Deduct tokens
-    await prisma.tokenBalance.update({
-      where: { userId: session.userId },
-      data: { balanceTokens: { decrement: estimatedTokens } },
-    });
-
-    return NextResponse.json({
-      status: "applied",
-      applied: true,
-      note: "Fix recorded. Content-level HTML changes will be applied in a future update.",
-    });
+        applied: true,
+        note: "Fix recorded. Could not auto-apply this change to the HTML content.",
+      });
+    }
   }
 
   // Apply the change to WordPress

@@ -78,6 +78,26 @@ export async function fetchAllContent(conn: WPConnection): Promise<WPPage[]> {
   return [...pages, ...posts];
 }
 
+// --- Read operations (single item) ---
+
+export async function fetchContentById(
+  conn: WPConnection,
+  contentType: "pages" | "posts",
+  contentId: number
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${apiBase(conn)}/${contentType}/${contentId}?_fields=content`,
+      { headers: { Authorization: authHeader(conn) } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.content?.rendered || data.content?.raw || null;
+  } catch {
+    return null;
+  }
+}
+
 // --- Write operations (Phase 2) ---
 
 export async function updatePageTitle(

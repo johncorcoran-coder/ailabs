@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { AuditSummary } from "@/components/AuditReport";
@@ -33,7 +33,15 @@ interface AuditData {
   issues: Issue[];
 }
 
-export default function AuditPage() {
+export default function AuditPageWrapper() {
+  return (
+    <Suspense>
+      <AuditPage />
+    </Suspense>
+  );
+}
+
+function AuditPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const [audit, setAudit] = useState<AuditData | null>(null);
