@@ -1,7 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { CrawledPage, SEOIssue } from "@/types";
 
-const client = new Anthropic();
+let _client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!_client) _client = new Anthropic();
+  return _client;
+}
 
 const SYSTEM_PROMPT = `You are a technical SEO expert. Analyze crawled page data and identify SEO issues.
 
@@ -50,7 +54,7 @@ export async function analyzePages(
       responseTimeMs: p.responseTimeMs,
     }));
 
-    const response = await client.messages.create({
+    const response = await getClient().messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
@@ -98,7 +102,7 @@ export async function analyzePages(
       })),
     };
 
-    const crossResponse = await client.messages.create({
+    const crossResponse = await getClient().messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
