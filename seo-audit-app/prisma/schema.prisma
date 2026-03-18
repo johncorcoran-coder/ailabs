@@ -27,6 +27,7 @@ model WPConnection {
   createdAt        DateTime @default(now())
   user             User     @relation(fields: [userId], references: [id])
   audits           Audit[]
+  schedules        AuditSchedule[]
 
   @@index([userId])
 }
@@ -50,6 +51,9 @@ model Audit {
   pagesCrawledSoFar      Int          @default(0) // Pages crawled so far (live counter)
   pagesAnalyzedSoFar     Int          @default(0) // Pages analyzed so far (live counter)
   errorDetails           String?      @db.Text // Detailed error info for failed audits
+  // Phase 4: before/after tracking
+  previousAuditId        String?      // Link to the prior audit for this site
+  scheduledBy            String?      // AuditSchedule id if triggered by schedule
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @updatedAt
   user                   User         @relation(fields: [userId], references: [id])
@@ -58,6 +62,7 @@ model Audit {
   crawledPages           CrawledPageData[]
 
   @@index([userId])
+  @@index([wpConnectionId, createdAt])
 }
 
 model CrawledPageData {
@@ -106,4 +111,20 @@ model Transaction {
   user                  User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+// Phase 4: Scheduled re-audits
+model AuditSchedule {
+  id               String       @id @default(cuid())
+  wpConnectionId   String
+  userId           String
+  frequency        String       @default("monthly") // monthly, weekly, biweekly
+  enabled          Boolean      @default(true)
+  lastRunAt        DateTime?
+  nextRunAt        DateTime?
+  createdAt        DateTime     @default(now())
+  wpConnection     WPConnection @relation(fields: [wpConnectionId], references: [id])
+
+  @@unique([wpConnectionId])
+  @@index([enabled, nextRunAt])
 }

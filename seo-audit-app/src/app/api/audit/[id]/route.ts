@@ -26,6 +26,26 @@ export async function GET(
     return NextResponse.json({ error: "Audit not found" }, { status: 404 });
   }
 
+  // Fetch previous audit for before/after comparison
+  let previousAudit: {
+    healthScore: number;
+    totalIssuesFound: number;
+    totalPagesCrawled: number;
+    createdAt: Date;
+  } | null = null;
+
+  if (audit.previousAuditId) {
+    previousAudit = await prisma.audit.findFirst({
+      where: { id: audit.previousAuditId, status: "complete" },
+      select: {
+        healthScore: true,
+        totalIssuesFound: true,
+        totalPagesCrawled: true,
+        createdAt: true,
+      },
+    });
+  }
+
   const summary = {
     id: audit.id,
     siteUrl: audit.siteUrl,
@@ -36,6 +56,14 @@ export async function GET(
     estimatedCostUsd: audit.estimatedCostUsd,
     agencyComparisonCostUsd: audit.agencyComparisonCostUsd,
     createdAt: audit.createdAt,
+    previousAudit: previousAudit
+      ? {
+          healthScore: previousAudit.healthScore,
+          totalIssuesFound: previousAudit.totalIssuesFound,
+          totalPagesCrawled: previousAudit.totalPagesCrawled,
+          createdAt: previousAudit.createdAt,
+        }
+      : null,
     issues: audit.issues.map((issue) => ({
       id: issue.id,
       pageUrl: issue.pageUrl,

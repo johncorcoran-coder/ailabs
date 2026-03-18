@@ -21,6 +21,13 @@ interface Issue {
   status: string;
 }
 
+interface PreviousAudit {
+  healthScore: number;
+  totalIssuesFound: number;
+  totalPagesCrawled: number;
+  createdAt: string;
+}
+
 interface AuditData {
   id: string;
   siteUrl: string;
@@ -30,6 +37,7 @@ interface AuditData {
   healthScore: number;
   estimatedCostUsd: number;
   agencyComparisonCostUsd: number;
+  previousAudit: PreviousAudit | null;
   issues: Issue[];
 }
 
@@ -200,14 +208,53 @@ function AuditPage() {
     <>
       <Navbar />
       <main className="mx-auto max-w-4xl px-6 py-10">
-        {/* Header with balance */}
+        {/* Header with balance + PDF export */}
         <div className="flex items-start justify-between">
           <div>
             <h1 className="mb-1 text-2xl font-bold">Audit Report</h1>
             <p className="text-sm text-gray-500">{audit.siteUrl}</p>
           </div>
-          <BalanceBadge onBuyClick={() => setShowBuyModal(true)} />
+          <div className="flex items-center gap-3">
+            <a
+              href={`/api/audit/${audit.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Export PDF
+            </a>
+            <BalanceBadge onBuyClick={() => setShowBuyModal(true)} />
+          </div>
         </div>
+
+        {/* Before/After Comparison */}
+        {audit.previousAudit && (
+          <div className="mt-4 rounded-lg border border-indigo-200 bg-indigo-50 p-5">
+            <h3 className="text-sm font-semibold text-indigo-900">
+              Compared to previous audit ({new Date(audit.previousAudit.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })})
+            </h3>
+            <div className="mt-3 grid grid-cols-3 gap-4">
+              <ScoreChange
+                label="Health Score"
+                current={audit.healthScore}
+                previous={audit.previousAudit.healthScore}
+                higherIsBetter
+              />
+              <ScoreChange
+                label="Issues Found"
+                current={audit.totalIssuesFound}
+                previous={audit.previousAudit.totalIssuesFound}
+                higherIsBetter={false}
+              />
+              <ScoreChange
+                label="Pages Crawled"
+                current={audit.totalPagesCrawled}
+                previous={audit.previousAudit.totalPagesCrawled}
+                higherIsBetter
+              />
+            </div>
+          </div>
+        )}
 
         {/* Notification banner */}
         {notification && (
@@ -344,5 +391,44 @@ function AuditPage() {
         }
       />
     </>
+  );
+}
+
+function ScoreChange({
+  label,
+  current,
+  previous,
+  higherIsBetter,
+}: {
+  label: string;
+  current: number;
+  previous: number;
+  higherIsBetter: boolean;
+}) {
+  const diff = current - previous;
+  const improved = higherIsBetter ? diff > 0 : diff < 0;
+  const worsened = higherIsBetter ? diff < 0 : diff > 0;
+  const sign = diff > 0 ? "+" : "";
+
+  return (
+    <div className="text-center">
+      <p className="text-xs text-indigo-600">{label}</p>
+      <p className="mt-1 text-lg font-bold text-indigo-900">{current}</p>
+      {diff !== 0 && (
+        <p
+          className={`text-xs font-medium ${
+            improved
+              ? "text-green-600"
+              : worsened
+                ? "text-red-600"
+                : "text-gray-500"
+          }`}
+        >
+          {sign}
+          {diff} {improved ? "improved" : "worsened"}
+        </p>
+      )}
+      {diff === 0 && <p className="text-xs text-gray-400">No change</p>}
+    </div>
   );
 }

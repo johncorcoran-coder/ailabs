@@ -21,6 +21,12 @@ export function Navbar() {
               >
                 Dashboard
               </Link>
+              <Link
+                href="/sites"
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Sites
+              </Link>
               <span className="text-sm text-gray-400">{session.user?.email}</span>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}

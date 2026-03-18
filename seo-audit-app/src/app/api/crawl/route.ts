@@ -31,6 +31,16 @@ export async function POST(req: Request) {
     );
   }
 
+  // Find the most recent completed audit for this connection (before/after tracking)
+  const previousAudit = await prisma.audit.findFirst({
+    where: {
+      wpConnectionId: connection.id,
+      status: "complete",
+    },
+    orderBy: { createdAt: "desc" },
+    select: { id: true },
+  });
+
   // Create audit record
   const audit = await prisma.audit.create({
     data: {
@@ -40,6 +50,7 @@ export async function POST(req: Request) {
       status: "crawling",
       progressMessage: "Discovering pages...",
       progressPercent: 0,
+      previousAuditId: previousAudit?.id ?? null,
     },
   });
 
