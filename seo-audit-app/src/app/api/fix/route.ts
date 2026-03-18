@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { getRequiredSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { decrypt } from "@/lib/encryption";
-import { findWPContentByUrl, updateContent, fetchContentById } from "@/lib/wordpress";
+import {
+  findWPContentByUrl,
+  updateContent,
+  fetchContentById,
+} from "@/lib/wordpress";
 import { applyHtmlFix } from "@/lib/html-fixer";
 
 export async function POST(req: Request) {
@@ -11,7 +15,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { issueId, action, modifiedValue } = await req.json();
+  let body: { issueId?: string; action?: string; modifiedValue?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  const { issueId, action, modifiedValue } = body;
 
   if (!issueId || !action) {
     return NextResponse.json(
@@ -55,7 +69,6 @@ export async function POST(req: Request) {
     where: { userId: session.userId },
   });
 
-  // Estimate ~2000 tokens per fix operation
   const estimatedTokens = 2000;
   if (!balance || balance.balanceTokens < estimatedTokens) {
     return NextResponse.json(
@@ -68,16 +81,37 @@ export async function POST(req: Request) {
   }
 
   // Decrypt WP credentials
-  const conn = {
-    siteUrl: issue.audit.wpConnection.siteUrl,
-    username: issue.audit.wpConnection.wpUsername,
-    appPassword: decrypt(issue.audit.wpConnection.wpAppPassword),
-  };
+  let conn: { siteUrl: string; username: string; appPassword: string };
+  try {
+    conn = {
+      siteUrl: issue.audit.wpConnection.siteUrl,
+      username: issue.audit.wpConnection.wpUsername,
+      appPassword: decrypt(issue.audit.wpConnection.wpAppPassword),
+    };
+  } catch {
+    return NextResponse.json(
+      {
+        error:
+          "Could not decrypt WordPress credentials. The encryption key may have changed. Please reconnect your site.",
+      },
+      { status: 500 }
+    );
+  }
 
   // Find the WordPress content item by URL
-  const wpContent = await findWPContentByUrl(conn, issue.pageUrl);
+  let wpContent: { id: number; type: "pages" | "posts" } | null;
+  try {
+    wpContent = await findWPContentByUrl(conn, issue.pageUrl);
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error: `Could not reach WordPress: ${err instanceof Error ? err.message : "Unknown error"}. Please verify the site is accessible.`,
+      },
+      { status: 502 }
+    );
+  }
+
   if (!wpContent) {
-    // Still mark as approved but note that we couldn't find the WP content
     await prisma.auditIssue.update({
       where: { id: issueId },
       data: {
@@ -89,7 +123,7 @@ export async function POST(req: Request) {
       status: "approved",
       applied: false,
       warning:
-        "Could not find matching WordPress content for this URL. The fix was saved but not applied.",
+        "Could not find matching WordPress content for this URL. The fix was saved but not applied. The page may have been deleted or its URL structure changed.",
     });
   }
 
@@ -100,9 +134,23 @@ export async function POST(req: Request) {
   if (issue.issueType.includes("title")) {
     updates.title = valueToApply;
   } else {
-    // Content-level HTML changes: H1, heading hierarchy, alt text, etc.
-    // Fetch current content from WordPress, apply the fix, push back
-    const currentContent = await fetchContentById(conn, wpContent.type, wpContent.id);
+    // Content-level HTML changes
+    let currentContent: string | null;
+    try {
+      currentContent = await fetchContentById(
+        conn,
+        wpContent.type,
+        wpContent.id
+      );
+    } catch (err) {
+      return NextResponse.json(
+        {
+          error: `Could not fetch current content from WordPress: ${err instanceof Error ? err.message : "Unknown error"}`,
+        },
+        { status: 502 }
+      );
+    }
+
     if (!currentContent) {
       await prisma.auditIssue.update({
         where: { id: issueId },
@@ -111,7 +159,8 @@ export async function POST(req: Request) {
       return NextResponse.json({
         status: "approved",
         applied: false,
-        warning: "Could not fetch current content from WordPress.",
+        warning:
+          "Could not fetch current content from WordPress. The fix was saved but not applied.",
       });
     }
 
@@ -125,10 +174,13 @@ export async function POST(req: Request) {
     if (modified) {
       updates.content = fixedHtml;
     } else {
-      // Couldn't match the pattern in the HTML — record but don't push
       await prisma.auditIssue.update({
         where: { id: issueId },
-        data: { status: "applied", userModifiedValue: modifiedValue || null, appliedAt: new Date() },
+        data: {
+          status: "applied",
+          userModifiedValue: modifiedValue || null,
+          appliedAt: new Date(),
+        },
       });
       await prisma.tokenBalance.update({
         where: { userId: session.userId },
@@ -153,7 +205,7 @@ export async function POST(req: Request) {
   if (!result.ok) {
     return NextResponse.json(
       { error: `Failed to apply fix: ${result.error}` },
-      { status: 500 }
+      { status: 502 }
     );
   }
 

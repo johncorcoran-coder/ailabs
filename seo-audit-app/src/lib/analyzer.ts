@@ -25,8 +25,15 @@ Severity guidelines:
 
 Return ONLY a valid JSON array of issue objects. No markdown, no explanation outside the JSON.`;
 
+export interface AnalyzeProgress {
+  message: string;
+  percent: number; // 0-100
+  pagesAnalyzed: number;
+}
+
 export async function analyzePages(
-  pages: CrawledPage[]
+  pages: CrawledPage[],
+  onProgress?: (progress: AnalyzeProgress) => Promise<void>
 ): Promise<{ issues: SEOIssue[]; inputTokens: number; outputTokens: number }> {
   const allIssues: SEOIssue[] = [];
   let totalInputTokens = 0;
@@ -34,7 +41,12 @@ export async function analyzePages(
 
   // Process pages in batches of 5 to stay within context limits
   const batchSize = 5;
+  const totalBatches = Math.ceil(pages.length / batchSize);
+  // Reserve 15% of progress for cross-page analysis
+  const perBatchWeight = 85;
+
   for (let i = 0; i < pages.length; i += batchSize) {
+    const batchIdx = Math.floor(i / batchSize);
     const batch = pages.slice(i, i + batchSize);
     const pageData = batch.map((p) => ({
       url: p.url,
@@ -54,42 +66,46 @@ export async function analyzePages(
       responseTimeMs: p.responseTimeMs,
     }));
 
-    const response = await getClient().messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Analyze these ${batch.length} pages for SEO issues:\n\n${JSON.stringify(pageData, null, 2)}`,
-        },
-      ],
+    await onProgress?.({
+      message: `Analyzing batch ${batchIdx + 1} of ${totalBatches} (pages ${i + 1}-${Math.min(i + batchSize, pages.length)})...`,
+      percent: Math.round((batchIdx / totalBatches) * perBatchWeight),
+      pagesAnalyzed: i,
     });
 
-    totalInputTokens += response.usage.input_tokens;
-    totalOutputTokens += response.usage.output_tokens;
-
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
     try {
-      const issues: SEOIssue[] = JSON.parse(text);
-      allIssues.push(...issues);
-    } catch {
-      // If parsing fails, try extracting JSON from the response
-      const match = text.match(/\[[\s\S]*\]/);
-      if (match) {
-        try {
-          const issues: SEOIssue[] = JSON.parse(match[0]);
-          allIssues.push(...issues);
-        } catch {
-          // Skip this batch if we can't parse it
-        }
-      }
+      const response = await getClient().messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: `Analyze these ${batch.length} pages for SEO issues:\n\n${JSON.stringify(pageData, null, 2)}`,
+          },
+        ],
+      });
+
+      totalInputTokens += response.usage.input_tokens;
+      totalOutputTokens += response.usage.output_tokens;
+
+      const text =
+        response.content[0].type === "text" ? response.content[0].text : "";
+      const parsed = parseIssuesJson(text);
+      allIssues.push(...parsed);
+    } catch (err) {
+      // Log but continue with other batches — partial results are better than none
+      console.error(`Analysis batch ${batchIdx + 1} failed:`, err);
     }
   }
 
-  // Now do cross-page analysis
+  // Cross-page analysis
   if (pages.length > 1) {
+    await onProgress?.({
+      message: "Running cross-page analysis (duplicates, orphan pages)...",
+      percent: perBatchWeight,
+      pagesAnalyzed: pages.length,
+    });
+
     const crossPageData = {
       allTitles: pages.map((p) => ({ url: p.url, title: p.title })),
       allMetaDescriptions: pages.map((p) => ({
@@ -102,38 +118,30 @@ export async function analyzePages(
       })),
     };
 
-    const crossResponse = await getClient().messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `Perform cross-page SEO analysis. Look for duplicate titles, duplicate meta descriptions, and orphan pages (pages with very few internal links). Data:\n\n${JSON.stringify(crossPageData, null, 2)}`,
-        },
-      ],
-    });
-
-    totalInputTokens += crossResponse.usage.input_tokens;
-    totalOutputTokens += crossResponse.usage.output_tokens;
-
-    const crossText =
-      crossResponse.content[0].type === "text"
-        ? crossResponse.content[0].text
-        : "";
     try {
-      const crossIssues: SEOIssue[] = JSON.parse(crossText);
-      allIssues.push(...crossIssues);
-    } catch {
-      const match = crossText.match(/\[[\s\S]*\]/);
-      if (match) {
-        try {
-          const crossIssues: SEOIssue[] = JSON.parse(match[0]);
-          allIssues.push(...crossIssues);
-        } catch {
-          // Skip
-        }
-      }
+      const crossResponse = await getClient().messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2048,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: `Perform cross-page SEO analysis. Look for duplicate titles, duplicate meta descriptions, and orphan pages (pages with very few internal links). Data:\n\n${JSON.stringify(crossPageData, null, 2)}`,
+          },
+        ],
+      });
+
+      totalInputTokens += crossResponse.usage.input_tokens;
+      totalOutputTokens += crossResponse.usage.output_tokens;
+
+      const crossText =
+        crossResponse.content[0].type === "text"
+          ? crossResponse.content[0].text
+          : "";
+      const parsed = parseIssuesJson(crossText);
+      allIssues.push(...parsed);
+    } catch (err) {
+      console.error("Cross-page analysis failed:", err);
     }
   }
 
@@ -153,9 +161,31 @@ export async function analyzePages(
     issue.priorityRank = idx + 1;
   });
 
+  await onProgress?.({
+    message: `Analysis complete. Found ${allIssues.length} issues.`,
+    percent: 100,
+    pagesAnalyzed: pages.length,
+  });
+
   return {
     issues: allIssues,
     inputTokens: totalInputTokens,
     outputTokens: totalOutputTokens,
   };
+}
+
+function parseIssuesJson(text: string): SEOIssue[] {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const match = text.match(/\[[\s\S]*\]/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
 }

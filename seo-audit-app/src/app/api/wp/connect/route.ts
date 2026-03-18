@@ -10,7 +10,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { siteUrl, username, appPassword } = await req.json();
+  let body: { siteUrl?: string; username?: string; appPassword?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  const { siteUrl, username, appPassword } = body;
   if (!siteUrl || !username || !appPassword) {
     return NextResponse.json(
       { error: "Site URL, username, and application password are required" },
@@ -18,10 +28,25 @@ export async function POST(req: Request) {
     );
   }
 
-  // Normalize URL
-  const normalizedUrl = siteUrl.replace(/\/+$/, "");
+  // Basic URL validation
+  let normalizedUrl: string;
+  try {
+    const parsed = new URL(siteUrl);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return NextResponse.json(
+        { error: "Site URL must use http or https protocol" },
+        { status: 400 }
+      );
+    }
+    normalizedUrl = parsed.origin + parsed.pathname.replace(/\/+$/, "");
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid URL format. Please enter a valid website URL (e.g., https://example.com)" },
+      { status: 400 }
+    );
+  }
 
-  // Test the connection first
+  // Test the connection
   const result = await testConnection({
     siteUrl: normalizedUrl,
     username,
@@ -46,10 +71,11 @@ export async function POST(req: Request) {
     id: connection.id,
     siteUrl: connection.siteUrl,
     username: connection.wpUsername,
+    capabilities: result.capabilities,
   });
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   const session = await getRequiredSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

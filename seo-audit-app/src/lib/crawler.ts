@@ -3,9 +3,17 @@ import type { CrawledPage } from "@/types";
 
 const USER_AGENT = "SEOAuditBot/1.0";
 const CRAWL_DELAY_MS = 500;
+const PAGE_TIMEOUT_MS = 15000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export interface CrawlProgress {
+  message: string;
+  percent: number; // 0-100
+  totalUrls: number;
+  crawledSoFar: number;
 }
 
 export async function discoverUrls(siteUrl: string): Promise<string[]> {
@@ -16,6 +24,7 @@ export async function discoverUrls(siteUrl: string): Promise<string[]> {
   try {
     const sitemapRes = await fetch(`${base}/sitemap.xml`, {
       headers: { "User-Agent": USER_AGENT },
+      signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
     });
     if (sitemapRes.ok) {
       const xml = await sitemapRes.text();
@@ -27,15 +36,20 @@ export async function discoverUrls(siteUrl: string): Promise<string[]> {
         .get();
       if (sitemapLocs.length > 0) {
         for (const loc of sitemapLocs.slice(0, 5)) {
-          const subRes = await fetch(loc, {
-            headers: { "User-Agent": USER_AGENT },
-          });
-          if (subRes.ok) {
-            const subXml = await subRes.text();
-            const sub$ = cheerio.load(subXml, { xmlMode: true } as Parameters<typeof cheerio.load>[1]);
-            sub$("url > loc").each((_, el) => {
-              urls.add(sub$(el).text().trim());
+          try {
+            const subRes = await fetch(loc, {
+              headers: { "User-Agent": USER_AGENT },
+              signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
             });
+            if (subRes.ok) {
+              const subXml = await subRes.text();
+              const sub$ = cheerio.load(subXml, { xmlMode: true } as Parameters<typeof cheerio.load>[1]);
+              sub$("url > loc").each((_, el) => {
+                urls.add(sub$(el).text().trim());
+              });
+            }
+          } catch {
+            // Sub-sitemap fetch failed, continue with others
           }
         }
       } else {
@@ -54,6 +68,7 @@ export async function discoverUrls(siteUrl: string): Promise<string[]> {
     try {
       const homeRes = await fetch(base, {
         headers: { "User-Agent": USER_AGENT },
+        signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
       });
       if (homeRes.ok) {
         const html = await homeRes.text();
@@ -85,6 +100,7 @@ export async function crawlPage(url: string): Promise<CrawledPage> {
   const res = await fetch(url, {
     headers: { "User-Agent": USER_AGENT },
     redirect: "follow",
+    signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
   });
   const responseTimeMs = Date.now() - start;
   const html = await res.text();
@@ -147,16 +163,43 @@ export async function crawlPage(url: string): Promise<CrawledPage> {
   };
 }
 
+/** Original crawlSite without progress — kept for backward compat */
 export async function crawlSite(siteUrl: string): Promise<CrawledPage[]> {
-  const urls = await discoverUrls(siteUrl);
-  const results: CrawledPage[] = [];
+  return crawlSiteWithProgress(siteUrl);
+}
 
-  for (const url of urls) {
+/** Crawl with progress callback for async pipeline */
+export async function crawlSiteWithProgress(
+  siteUrl: string,
+  onProgress?: (progress: CrawlProgress) => Promise<void>
+): Promise<CrawledPage[]> {
+  await onProgress?.({
+    message: "Discovering pages from sitemap...",
+    percent: 0,
+    totalUrls: 0,
+    crawledSoFar: 0,
+  });
+
+  const urls = await discoverUrls(siteUrl);
+
+  await onProgress?.({
+    message: `Found ${urls.length} pages. Starting crawl...`,
+    percent: 5,
+    totalUrls: urls.length,
+    crawledSoFar: 0,
+  });
+
+  const results: CrawledPage[] = [];
+  let failedCount = 0;
+
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
     try {
       const page = await crawlPage(url);
       results.push(page);
-    } catch {
-      // Log but continue crawling other pages
+    } catch (err) {
+      failedCount++;
+      // Record a placeholder for failed pages
       results.push({
         url,
         title: null,
@@ -174,6 +217,18 @@ export async function crawlSite(siteUrl: string): Promise<CrawledPage[]> {
         statusCode: 0,
       });
     }
+
+    // Report progress every page
+    const crawled = i + 1;
+    const percent = 5 + Math.round((crawled / urls.length) * 95);
+    const failSuffix = failedCount > 0 ? ` (${failedCount} failed)` : "";
+    await onProgress?.({
+      message: `Crawling page ${crawled} of ${urls.length}${failSuffix}...`,
+      percent,
+      totalUrls: urls.length,
+      crawledSoFar: crawled,
+    });
+
     await sleep(CRAWL_DELAY_MS);
   }
 

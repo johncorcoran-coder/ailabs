@@ -43,6 +43,13 @@ model Audit {
   estimatedCostUsd       Float        @default(0)
   agencyComparisonCostUsd Float       @default(0)
   healthScore            Int          @default(0)
+  // Progress tracking (Phase 3)
+  progressMessage        String?      // Human-readable progress message
+  progressPercent        Int          @default(0) // 0-100
+  totalUrlsDiscovered    Int          @default(0) // URLs found during discovery
+  pagesCrawledSoFar      Int          @default(0) // Pages crawled so far (live counter)
+  pagesAnalyzedSoFar     Int          @default(0) // Pages analyzed so far (live counter)
+  errorDetails           String?      @db.Text // Detailed error info for failed audits
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @updatedAt
   user                   User         @relation(fields: [userId], references: [id])
