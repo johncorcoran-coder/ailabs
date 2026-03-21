@@ -17,10 +17,20 @@ function apiBase(conn: WPConnection): string {
 function wpHeaders(conn: WPConnection, extra?: Record<string, string>): Record<string, string> {
   return {
     "User-Agent": USER_AGENT,
+    Accept: "application/json",
     Authorization: authHeader(conn),
     ...extra,
   };
 }
+
+function isJsonResponse(res: Response): boolean {
+  const ct = res.headers.get("content-type") || "";
+  return ct.includes("application/json") || ct.includes("application/hal+json");
+}
+
+const BOT_PROTECTION_ERROR =
+  "Your site's firewall or bot protection (e.g. Cloudflare, Sucuri, Wordfence) is blocking our server. " +
+  "Please whitelist our server or disable bot challenge for the /wp-json/ path in your security plugin/CDN settings.";
 
 export async function testConnection(
   conn: WPConnection
@@ -30,7 +40,7 @@ export async function testConnection(
     const discoveryRes = await fetch(
       `${conn.siteUrl.replace(/\/+$/, "")}/wp-json/`,
       {
-        headers: { "User-Agent": USER_AGENT },
+        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
@@ -42,10 +52,17 @@ export async function testConnection(
             "WordPress REST API not found. Make sure your site has the REST API enabled. Some security plugins may disable it.",
         };
       }
+      if (discoveryRes.status === 403) {
+        return { ok: false, error: BOT_PROTECTION_ERROR };
+      }
       return {
         ok: false,
         error: `WordPress responded with status ${discoveryRes.status}. The REST API may be restricted.`,
       };
+    }
+    // Check that we got JSON back, not an HTML challenge page
+    if (!isJsonResponse(discoveryRes)) {
+      return { ok: false, error: BOT_PROTECTION_ERROR };
     }
   } catch (err) {
     if (err instanceof Error) {
@@ -79,6 +96,10 @@ export async function testConnection(
     });
 
     if (res.ok) {
+      // Verify we got JSON, not an HTML challenge page from a WAF
+      if (!isJsonResponse(res)) {
+        return { ok: false, error: BOT_PROTECTION_ERROR };
+      }
       const userData = await res.json();
       const capabilities: string[] = [];
 
