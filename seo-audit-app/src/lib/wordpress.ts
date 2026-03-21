@@ -1,6 +1,7 @@
 import type { WPConnection, WPPage } from "@/types";
 
 const WP_TIMEOUT_MS = 15000;
+const USER_AGENT = "SEOAuditApp/1.0 (WordPress REST API Client)";
 
 function authHeader(conn: WPConnection): string {
   return (
@@ -13,6 +14,14 @@ function apiBase(conn: WPConnection): string {
   return `${conn.siteUrl.replace(/\/+$/, "")}/wp-json/wp/v2`;
 }
 
+function wpHeaders(conn: WPConnection, extra?: Record<string, string>): Record<string, string> {
+  return {
+    "User-Agent": USER_AGENT,
+    Authorization: authHeader(conn),
+    ...extra,
+  };
+}
+
 export async function testConnection(
   conn: WPConnection
 ): Promise<{ ok: boolean; error?: string; capabilities?: string[] }> {
@@ -20,7 +29,10 @@ export async function testConnection(
   try {
     const discoveryRes = await fetch(
       `${conn.siteUrl.replace(/\/+$/, "")}/wp-json/`,
-      { signal: AbortSignal.timeout(WP_TIMEOUT_MS) }
+      {
+        headers: { "User-Agent": USER_AGENT },
+        signal: AbortSignal.timeout(WP_TIMEOUT_MS),
+      }
     );
     if (!discoveryRes.ok) {
       if (discoveryRes.status === 404) {
@@ -62,7 +74,7 @@ export async function testConnection(
   // Test authentication
   try {
     const res = await fetch(`${apiBase(conn)}/users/me`, {
-      headers: { Authorization: authHeader(conn) },
+      headers: wpHeaders(conn),
       signal: AbortSignal.timeout(WP_TIMEOUT_MS),
     });
 
@@ -109,9 +121,11 @@ export async function testConnection(
         error: "Authentication request timed out. Please try again.",
       };
     }
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("WP auth error:", detail);
     return {
       ok: false,
-      error: `Could not authenticate with ${conn.siteUrl}. Make sure the WordPress REST API is enabled.`,
+      error: `Could not authenticate with ${conn.siteUrl}. The server may be blocking API requests. (${detail})`,
     };
   }
 }
@@ -124,7 +138,7 @@ export async function fetchPages(conn: WPConnection): Promise<WPPage[]> {
     const res = await fetch(
       `${apiBase(conn)}/pages?per_page=100&page=${page}&_fields=id,title,content,link,slug`,
       {
-        headers: { Authorization: authHeader(conn) },
+        headers: wpHeaders(conn),
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
@@ -147,7 +161,7 @@ export async function fetchPosts(conn: WPConnection): Promise<WPPage[]> {
     const res = await fetch(
       `${apiBase(conn)}/posts?per_page=100&page=${page}&_fields=id,title,content,link,slug`,
       {
-        headers: { Authorization: authHeader(conn) },
+        headers: wpHeaders(conn),
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
@@ -181,7 +195,7 @@ export async function fetchContentById(
     const res = await fetch(
       `${apiBase(conn)}/${contentType}/${contentId}?_fields=content`,
       {
-        headers: { Authorization: authHeader(conn) },
+        headers: wpHeaders(conn),
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
@@ -203,10 +217,7 @@ export async function updatePageTitle(
   try {
     const res = await fetch(`${apiBase(conn)}/pages/${pageId}`, {
       method: "PUT",
-      headers: {
-        Authorization: authHeader(conn),
-        "Content-Type": "application/json",
-      },
+      headers: wpHeaders(conn, { "Content-Type": "application/json" }),
       body: JSON.stringify({ title: newTitle }),
       signal: AbortSignal.timeout(WP_TIMEOUT_MS),
     });
@@ -225,10 +236,7 @@ export async function updatePostTitle(
   try {
     const res = await fetch(`${apiBase(conn)}/posts/${postId}`, {
       method: "PUT",
-      headers: {
-        Authorization: authHeader(conn),
-        "Content-Type": "application/json",
-      },
+      headers: wpHeaders(conn, { "Content-Type": "application/json" }),
       body: JSON.stringify({ title: newTitle }),
       signal: AbortSignal.timeout(WP_TIMEOUT_MS),
     });
@@ -248,10 +256,7 @@ export async function updateContent(
   try {
     const res = await fetch(`${apiBase(conn)}/${contentType}/${contentId}`, {
       method: "PUT",
-      headers: {
-        Authorization: authHeader(conn),
-        "Content-Type": "application/json",
-      },
+      headers: wpHeaders(conn, { "Content-Type": "application/json" }),
       body: JSON.stringify(updates),
       signal: AbortSignal.timeout(WP_TIMEOUT_MS),
     });
@@ -274,7 +279,7 @@ export async function findWPContentByUrl(
     const pagesRes = await fetch(
       `${apiBase(conn)}/pages?slug=${encodeURIComponent(slug)}&_fields=id`,
       {
-        headers: { Authorization: authHeader(conn) },
+        headers: wpHeaders(conn),
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
@@ -293,7 +298,7 @@ export async function findWPContentByUrl(
     const postsRes = await fetch(
       `${apiBase(conn)}/posts?slug=${encodeURIComponent(slug)}&_fields=id`,
       {
-        headers: { Authorization: authHeader(conn) },
+        headers: wpHeaders(conn),
         signal: AbortSignal.timeout(WP_TIMEOUT_MS),
       }
     );
