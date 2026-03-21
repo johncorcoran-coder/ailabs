@@ -37,6 +37,7 @@ function ConnectPage() {
   const [appPassword, setAppPassword] = useState("");
   const [error, setError] = useState("");
   const [errorDetails, setErrorDetails] = useState("");
+  const [warning, setWarning] = useState("");
   const [step, setStep] = useState<Step>("form");
   const [auditId, setAuditId] = useState<string | null>(null);
   const [progress, setProgress] = useState<AuditProgress | null>(null);
@@ -114,7 +115,11 @@ function ConnectPage() {
       return;
     }
 
-    const { id: wpConnectionId } = await connectRes.json();
+    const connectData = await connectRes.json();
+    const { id: wpConnectionId } = connectData;
+    if (connectData.warning) {
+      setWarning(connectData.warning);
+    }
 
     // Step 2: Start crawl + analysis (async — returns immediately)
     setStep("crawling");
@@ -295,6 +300,18 @@ function ConnectPage() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Warning panel (e.g. bot protection detected) */}
+        {warning && !error && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-xs font-bold">
+                i
+              </div>
+              <p className="text-sm text-amber-800">{warning}</p>
+            </div>
           </div>
         )}
 

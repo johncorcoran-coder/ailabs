@@ -34,36 +34,16 @@ const BOT_PROTECTION_ERROR =
 
 export async function testConnection(
   conn: WPConnection
-): Promise<{ ok: boolean; error?: string; capabilities?: string[] }> {
-  // First check if the REST API is accessible at all
+): Promise<{ ok: boolean; error?: string; capabilities?: string[]; warning?: string }> {
+  // First check if the site is reachable at all
+  let siteReachable = false;
   try {
-    const discoveryRes = await fetch(
-      `${conn.siteUrl.replace(/\/+$/, "")}/wp-json/`,
-      {
-        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-        signal: AbortSignal.timeout(WP_TIMEOUT_MS),
-      }
-    );
-    if (!discoveryRes.ok) {
-      if (discoveryRes.status === 404) {
-        return {
-          ok: false,
-          error:
-            "WordPress REST API not found. Make sure your site has the REST API enabled. Some security plugins may disable it.",
-        };
-      }
-      if (discoveryRes.status === 403) {
-        return { ok: false, error: BOT_PROTECTION_ERROR };
-      }
-      return {
-        ok: false,
-        error: `WordPress responded with status ${discoveryRes.status}. The REST API may be restricted.`,
-      };
-    }
-    // Check that we got JSON back, not an HTML challenge page
-    if (!isJsonResponse(discoveryRes)) {
-      return { ok: false, error: BOT_PROTECTION_ERROR };
-    }
+    const homeRes = await fetch(conn.siteUrl.replace(/\/+$/, ""), {
+      headers: { "User-Agent": USER_AGENT },
+      signal: AbortSignal.timeout(WP_TIMEOUT_MS),
+      redirect: "follow",
+    });
+    siteReachable = homeRes.ok;
   } catch (err) {
     if (err instanceof Error) {
       if (err.name === "TimeoutError" || err.message.includes("timeout")) {
@@ -88,7 +68,79 @@ export async function testConnection(
     };
   }
 
-  // Test authentication
+  if (!siteReachable) {
+    return {
+      ok: false,
+      error: `Could not reach ${conn.siteUrl}. The site returned an error. Please check the URL.`,
+    };
+  }
+
+  // Now check if the REST API is accessible
+  let botProtectionDetected = false;
+  try {
+    const discoveryRes = await fetch(
+      `${conn.siteUrl.replace(/\/+$/, "")}/wp-json/`,
+      {
+        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
+        signal: AbortSignal.timeout(WP_TIMEOUT_MS),
+      }
+    );
+    if (!discoveryRes.ok) {
+      if (discoveryRes.status === 404) {
+        return {
+          ok: false,
+          error:
+            "WordPress REST API not found. Make sure your site has the REST API enabled. Some security plugins may disable it.",
+        };
+      }
+      // 403 or other status — might be bot protection
+      botProtectionDetected = true;
+    } else if (!isJsonResponse(discoveryRes)) {
+      // Got 200 but HTML instead of JSON — bot protection challenge page
+      botProtectionDetected = true;
+    }
+  } catch {
+    // Network error on REST API but site was reachable — likely blocked
+    botProtectionDetected = true;
+  }
+
+  // If bot protection blocks the REST API, fall back to site-reachable-only mode
+  if (botProtectionDetected) {
+    // Verify it looks like a WordPress site by checking for common WP markers
+    try {
+      const homeRes = await fetch(conn.siteUrl.replace(/\/+$/, ""), {
+        headers: { "User-Agent": USER_AGENT },
+        signal: AbortSignal.timeout(WP_TIMEOUT_MS),
+        redirect: "follow",
+      });
+      const html = await homeRes.text();
+      const isWordPress =
+        html.includes("wp-content") ||
+        html.includes("wp-includes") ||
+        html.includes("wordpress") ||
+        html.includes("WordPress");
+
+      if (!isWordPress) {
+        return {
+          ok: false,
+          error: `${conn.siteUrl} does not appear to be a WordPress site. Please verify the URL.`,
+        };
+      }
+    } catch {
+      // Already verified reachable above, proceed anyway
+    }
+
+    return {
+      ok: true,
+      capabilities: [],
+      warning:
+        "Your site's firewall is blocking REST API access from our server. " +
+        "The SEO audit will still work (we crawl your public pages), but " +
+        "one-click fix application won't be available until you whitelist our server in your security/CDN settings.",
+    };
+  }
+
+  // REST API is accessible — test authentication
   try {
     const res = await fetch(`${apiBase(conn)}/users/me`, {
       headers: wpHeaders(conn),
@@ -96,14 +148,19 @@ export async function testConnection(
     });
 
     if (res.ok) {
-      // Verify we got JSON, not an HTML challenge page from a WAF
       if (!isJsonResponse(res)) {
-        return { ok: false, error: BOT_PROTECTION_ERROR };
+        // Auth endpoint returns HTML — bot protection on authenticated routes
+        return {
+          ok: true,
+          capabilities: [],
+          warning:
+            "Your site's firewall is blocking authenticated API requests from our server. " +
+            "The SEO audit will still work, but one-click fix application won't be available.",
+        };
       }
       const userData = await res.json();
       const capabilities: string[] = [];
 
-      // Check for common capabilities
       if (userData.capabilities?.edit_posts) capabilities.push("edit_posts");
       if (userData.capabilities?.edit_pages) capabilities.push("edit_pages");
       if (userData.capabilities?.manage_options)

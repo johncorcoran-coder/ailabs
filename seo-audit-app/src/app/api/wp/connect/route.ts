@@ -72,6 +72,7 @@ export async function POST(req: Request) {
     siteUrl: connection.siteUrl,
     username: connection.wpUsername,
     capabilities: result.capabilities,
+    warning: result.warning,
   });
 }
 
