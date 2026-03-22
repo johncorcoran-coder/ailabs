@@ -158,7 +158,21 @@ export async function testConnection(
             "The SEO audit will still work, but one-click fix application won't be available.",
         };
       }
-      const userData = await res.json();
+      // Read body as text first — some WAFs return HTML with a JSON content-type
+      const bodyText = await res.text();
+      let userData: Record<string, unknown>;
+      try {
+        userData = JSON.parse(bodyText);
+      } catch {
+        // Content-type said JSON but body is HTML — bot protection
+        return {
+          ok: true,
+          capabilities: [],
+          warning:
+            "Your site's firewall is blocking authenticated API requests from our server. " +
+            "The SEO audit will still work, but one-click fix application won't be available.",
+        };
+      }
       const capabilities: string[] = [];
 
       if (userData.capabilities?.edit_posts) capabilities.push("edit_posts");
