@@ -174,11 +174,11 @@ export async function testConnection(
         };
       }
       const capabilities: string[] = [];
+      const caps = userData.capabilities as Record<string, boolean> | undefined;
 
-      if (userData.capabilities?.edit_posts) capabilities.push("edit_posts");
-      if (userData.capabilities?.edit_pages) capabilities.push("edit_pages");
-      if (userData.capabilities?.manage_options)
-        capabilities.push("manage_options");
+      if (caps?.edit_posts) capabilities.push("edit_posts");
+      if (caps?.edit_pages) capabilities.push("edit_pages");
+      if (caps?.manage_options) capabilities.push("manage_options");
 
       return { ok: true, capabilities };
     }
