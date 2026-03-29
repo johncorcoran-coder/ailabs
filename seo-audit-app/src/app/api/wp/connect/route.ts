@@ -47,33 +47,50 @@ export async function POST(req: Request) {
   }
 
   // Test the connection
-  const result = await testConnection({
-    siteUrl: normalizedUrl,
-    username,
-    appPassword,
-  });
+  let result;
+  try {
+    result = await testConnection({
+      siteUrl: normalizedUrl,
+      username,
+      appPassword,
+    });
+  } catch (err) {
+    console.error("testConnection threw:", err);
+    return NextResponse.json(
+      { error: `Connection test failed: ${err instanceof Error ? err.message : String(err)}` },
+      { status: 500 }
+    );
+  }
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
 
   // Store the connection with encrypted password
-  const connection = await prisma.wPConnection.create({
-    data: {
-      userId: session.userId,
-      siteUrl: normalizedUrl,
-      wpUsername: username,
-      wpAppPassword: encrypt(appPassword),
-    },
-  });
+  try {
+    const connection = await prisma.wPConnection.create({
+      data: {
+        userId: session.userId,
+        siteUrl: normalizedUrl,
+        wpUsername: username,
+        wpAppPassword: encrypt(appPassword),
+      },
+    });
 
-  return NextResponse.json({
-    id: connection.id,
-    siteUrl: connection.siteUrl,
-    username: connection.wpUsername,
-    capabilities: result.capabilities,
-    warning: result.warning,
-  });
+    return NextResponse.json({
+      id: connection.id,
+      siteUrl: connection.siteUrl,
+      username: connection.wpUsername,
+      capabilities: result.capabilities,
+      warning: result.warning,
+    });
+  } catch (err) {
+    console.error("Failed to save WP connection:", err);
+    return NextResponse.json(
+      { error: `Failed to save connection: ${err instanceof Error ? err.message : String(err)}` },
+      { status: 500 }
+    );
+  }
 }
 
 export async function GET() {
